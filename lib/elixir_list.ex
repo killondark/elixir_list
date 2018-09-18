@@ -1,9 +1,7 @@
 defmodule ElixirList do
-  @moduledoc """
-  ElixirList keeps the contexts that define your domain
-  and business logic.
+  @url_for_elixir_list "https://raw.githubusercontent.com/h4cc/awesome-elixir/master/README.md"
 
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
-  """
+  def download_file do
+    Download.from(@url_for_elixir_list, [path: "#{File.cwd!}/list_from_github.md"])    
+  end
 end

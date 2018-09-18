@@ -25,3 +25,6 @@ npm-debug.log
 # secrets files as long as you replace their contents by environment
 # variables.
 /config/*.secret.exs
+
+# Downloaded md file of Elixir list from original repository
+/list_from_github.md
