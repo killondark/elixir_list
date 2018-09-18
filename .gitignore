@@ -26,5 +26,5 @@ npm-debug.log
 # variables.
 /config/*.secret.exs
 
-# Downloaded md file of Elixir list from original repository
-/list_from_github.md
+# Downloaded html file of Elixir list from original repository
+/raw_github_list.html

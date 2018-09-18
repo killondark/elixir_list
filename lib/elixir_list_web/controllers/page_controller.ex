@@ -3,9 +3,8 @@ defmodule ElixirListWeb.PageController do
   require Logger
 
   def index(conn, _params) do
-    ElixirList.download_file()
-    markdown = ElixirList.open_file(ElixirList.file_path())
-    {_, html_doc, _}     = ElixirList.md_to_html(markdown)
+    html_doc = ElixirList.read_or_load()
+    Logger.info(html_doc)
     render conn, "index.html", html_doc: html_doc
   end
 end
