@@ -12,4 +12,8 @@ defmodule ElixirList do
   def file_path do
     "#{File.cwd!}/list_from_github.md"
   end
+
+  def md_to_html(markdown) do
+    Earmark.as_html(markdown)
+  end
 end

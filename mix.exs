@@ -39,6 +39,7 @@ defmodule ElixirList.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:download, "~> 0.0.4"},
+      { :earmark, "> 1.2.4" }
     ]
   end
 end

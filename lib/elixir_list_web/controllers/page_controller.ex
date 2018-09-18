@@ -4,7 +4,8 @@ defmodule ElixirListWeb.PageController do
 
   def index(conn, _params) do
     ElixirList.download_file()
-    data = ElixirList.open_file(ElixirList.file_path())
-    render conn, "index.html"
+    markdown = ElixirList.open_file(ElixirList.file_path())
+    {_, html_doc, _}     = ElixirList.md_to_html(markdown)
+    render conn, "index.html", html_doc: html_doc
   end
 end
