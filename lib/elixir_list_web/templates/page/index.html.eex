@@ -1,1 +1,2 @@
-<%= raw @html_doc %>
+<h2>Contents</h2>
+<%= raw @contents %>

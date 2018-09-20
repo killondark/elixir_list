@@ -2,6 +2,8 @@ defmodule ElixirList do
   @url_for_elixir_list "https://github.com/h4cc/awesome-elixir"
   @ttl 1
 
+  defguard not_empty_string(string) when is_binary(string) and string != ""
+  
   def download_file do
     # does not overwrite file if he is exist
     Download.from(@url_for_elixir_list, [path: file_path()])    
@@ -42,5 +44,15 @@ defmodule ElixirList do
 
   def delete_file do
     :file.delete(file_path())
+  end
+
+  def parse_contents do
+    html_doc = read_or_load()
+    map = Regex.named_captures(~r/<li><a href="#awesome-elixir">Awesome Elixir<\/a>\n(?<result>[\s\S]*?)<\/ul>/, html_doc)
+    case map do
+      %{"result" => string} when not_empty_string(string) ->
+        map["result"]
+      _ -> "Something went wrong. Can not parse the table of contents"
+    end
   end
 end
