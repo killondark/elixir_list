@@ -1,6 +1,7 @@
 defmodule ElixirList do
   @url_for_elixir_list "https://github.com/h4cc/awesome-elixir"
   @ttl 1
+  @parse_error "Something went wrong. Can not parse the table of contents"
 
   defguard not_empty_string(string) when is_binary(string) and string != ""
   
@@ -52,7 +53,25 @@ defmodule ElixirList do
     case map do
       %{"result" => string} when not_empty_string(string) ->
         map["result"]
-      _ -> "Something went wrong. Can not parse the table of contents"
+      _ -> @parse_error
     end
+  end
+
+  def parse_list do
+    html_doc = read_or_load()
+    map = Regex.named_captures(~r/(?<result><h2><a id="user-content[\s\S]*?)<h1><a id="user-content-resources"/, html_doc)
+    case map do
+      %{"result" => string} when not_empty_string(string) ->
+        update_h2(map["result"])
+      _ -> @parse_error
+    end
+  end
+
+  def update_h2(string) do
+    regex = ~r/<h2>[\s\S]*?<\/a>([\s\S]*?)<\/h2>/
+    good_h2 = fn (_, x) ->
+      "<h2 id=\"#{String.downcase(x) |> String.replace(" ", "-")}\">#{x}</h2>"
+    end
+    Regex.replace(regex, string, good_h2)
   end
 end

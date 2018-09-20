@@ -3,6 +3,6 @@ defmodule ElixirListWeb.PageController do
   require Logger
 
   def index(conn, _params) do
-    render conn, "index.html", contents: ElixirList.parse_contents()
+    render conn, "index.html", contents: ElixirList.parse_contents(), list: ElixirList.parse_list()
   end
 end
