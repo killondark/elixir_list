@@ -62,7 +62,7 @@ defmodule ElixirList do
     map = Regex.named_captures(~r/(?<result><h2><a id="user-content[\s\S]*?)<h1><a id="user-content-resources"/, html_doc)
     case map do
       %{"result" => string} when not_empty_string(string) ->
-        update_h2(map["result"])
+        map["result"] |> update_h2()  |> add_info()
       _ -> @parse_error
     end
   end
@@ -73,5 +73,32 @@ defmodule ElixirList do
       "<h2 id=\"#{String.downcase(x) |> String.replace(" ", "-")}\">#{x}</h2>"
     end
     Regex.replace(regex, string, good_h2)
+  end
+
+  def repo_info(url) do
+    # curl https://api.github.com/repos/[username]/[reponame]
+    # last_commit: "updated_at"
+    # stars: "stargazers_count"
+    # HTTPoison.get!("https://api.github.com/repos/takscape/elixir-array", [], [params: [access_token: "auth-token"]])
+    options = [params: [access_token: "generate-token"]]
+    response = HTTPoison.get!(url, [], options)
+    req = Poison.decode!(response.body)
+    %{last_commit: req["updated_at"], stars: req["stargazers_count"]}
+  end
+
+  def add_info(string) do
+    regex = ~r/<li><a href=\"([\s\S]*?)\">[\s\S]*?<\/a>/
+    data = fn (all, link) ->
+      # curl -i https://api.github.com -u login:password
+      # curl https://api.github.com/?access_token=OAUTH-TOKEN
+      good_link = Regex.replace(~r/https:\/\/github.com/, link, "https://api.github.com/repos")
+      if String.contains?(good_link, "github") do
+        info = repo_info(good_link)
+        "#{all} stars: #{info.stars}, last_commit: #{info.last_commit}"
+      else
+        all
+      end
+    end
+    Regex.replace(regex, string, data)
   end
 end
