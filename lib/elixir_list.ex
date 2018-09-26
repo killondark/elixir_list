@@ -15,7 +15,7 @@ defmodule ElixirList do
 
   def raw_contents(string) do
     string = Regex.replace(~r/([\s\S]*?)\n##/, string, "\n##", global: false)
-    Regex.replace(~r/\n# Resources[\s\S]*?/, string, "\n##", global: false)
+    Regex.replace(~r/\n(# Resources[\s\S]*)/, string, "\n##")
     # result <> "##"
   end
 
@@ -29,6 +29,9 @@ defmodule ElixirList do
     # stars: "stargazers_count"
     # HTTPoison.get!("https://api.github.com/repos/takscape/elixir-array", [], [params: [access_token: "auth-token"]])
     options = [params: [access_token: "generate-token"]]
+    if options[:params][:access_token] == "generate-token" do
+      Logger.info("You need generate token")
+    end
     response = HTTPoison.get!("https://api.github.com/repos/" <> repo, [], options)
     req = Poison.decode!(response.body)
     case response.status_code do
@@ -78,7 +81,7 @@ defmodule ElixirList do
 
   def all_records do
     # make sort on $1 and $4 lib_name by alphabet
-    :dets.match_object(store_name(), {:"$1", :"$2", :"$3", :"$4"})  
+    :dets.match_object(store_name(), {:"$1", :"$2", :"$3", :"$4"})
   end
 
   def store_name do
