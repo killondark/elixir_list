@@ -14,6 +14,7 @@ defmodule ElixirList.Application do
       # worker(ElixirList.Worker, [arg1, arg2, arg3]),
     ]
 
+    ElixirList.open_table()
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ElixirList.Supervisor]

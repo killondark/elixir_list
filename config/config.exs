@@ -11,7 +11,8 @@ config :elixir_list, ElixirListWeb.Endpoint,
   secret_key_base: "6mdiWOMVTDiL9hCQwUfKUDbY+MTQib9UHuWqjfbz0s7T7sydgVnmM/srwCvPeFUR",
   render_errors: [view: ElixirListWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: ElixirList.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  dets: :store
 
 # Configures Elixir's Logger
 config :logger, :console,

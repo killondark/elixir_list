@@ -28,3 +28,7 @@ npm-debug.log
 
 # Downloaded html file of Elixir list from original repository
 /raw_github_list.html
+
+# dets store for github data
+/store
+/store_test
