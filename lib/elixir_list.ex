@@ -14,12 +14,13 @@ defmodule ElixirList do
   end
 
   def raw_contents(string) do
-    [result] = Regex.run(~r/[\s\S]*?\n# Resources/, string)
-    result <> "##"
+    string = Regex.replace(~r/([\s\S]*?)\n##/, string, "\n##", global: false)
+    Regex.replace(~r/\n# Resources[\s\S]*?/, string, "\n##", global: false)
+    # result <> "##"
   end
 
   def parse_lib(string) do
-    Regex.scan(~r/\* [\s\S]*?\(https:\/\/github.com\/([\s\S]*?)\) - ([\s\S]*?)\n/, string)
+    Regex.scan(~r/\* [\s\S]*?\(https:\/\/github.com\/([\s\S]*?)\/?\) - ([\s\S]*?)\n/, string)
   end
 
   def set_repo_info(repo) do
@@ -31,6 +32,7 @@ defmodule ElixirList do
     response = HTTPoison.get!("https://api.github.com/repos/" <> repo, [], options)
     req = Poison.decode!(response.body)
     case response.status_code do
+      404 -> [nil, nil]
       301 ->
         response = HTTPoison.get!(req["url"])
         req = Poison.decode!(response.body)
@@ -67,16 +69,20 @@ defmodule ElixirList do
         x = List.delete_at(x, 0)
         x ++ (hd(x) |> ElixirList.set_repo_info())
       end)
-      {title_name, title_description, :calendar.universal_time, libs}
-      # string = Regex.replace(regex, string, '')
-      # parse_contents(string)
-    else
-      # end
+      record = {title_name, title_description, :calendar.universal_time, libs}
+      create(record)
+      string = Regex.replace(regex, string, "##", global: false)
+      parse_contents(string)
     end
   end
 
+  def all_records do
+    # make sort on $1 and $4 lib_name by alphabet
+    :dets.match_object(store_name(), {:"$1", :"$2", :"$3", :"$4"})  
+  end
+
   def store_name do
-    Application.get_env(:elixir_list, :dets)
+    Application.get_env(:elixir_list, ElixirListWeb.Endpoint)[:dets]
   end
 
   def open_table do
