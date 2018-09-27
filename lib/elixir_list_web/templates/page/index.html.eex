@@ -1,3 +1,6 @@
 <h2>Contents</h2>
-<%= raw @contents %>
-<%= raw @list %>
+  <%= for title <- @titles do %>
+    <li>
+      <%= link title, to: "#" <> get_id(title) %>
+    </li>
+  <% end %>

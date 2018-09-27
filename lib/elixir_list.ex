@@ -74,13 +74,12 @@ defmodule ElixirList do
       end)
       record = {title_name, title_description, :calendar.universal_time, libs}
       create(record)
-      string = Regex.replace(regex, string, "##", global: false)
+      string = Regex.replace(regex, string, "\n##", global: false)
       parse_contents(string)
     end
   end
 
   def all_records do
-    # make sort on $1 and $4 lib_name by alphabet
     :dets.match_object(store_name(), {:"$1", :"$2", :"$3", :"$4"})
   end
 
@@ -94,5 +93,11 @@ defmodule ElixirList do
 
   def create(data) do
     :dets.insert(store_name(), data)
+  end
+
+  def select_titles do
+    :dets.match(store_name(), {:"$1", :_, :_, :_})
+    |> List.flatten()
+    |> Enum.sort()
   end
 end

@@ -12,7 +12,7 @@ config :elixir_list, ElixirListWeb.Endpoint,
   render_errors: [view: ElixirListWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: ElixirList.PubSub,
            adapter: Phoenix.PubSub.PG2],
-  dets: :store
+  dets: :data_store
 
 # Configures Elixir's Logger
 config :logger, :console,

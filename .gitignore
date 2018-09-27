@@ -30,5 +30,5 @@ npm-debug.log
 /raw_github_list.html
 
 # dets store for github data
-/store
-/store_test
+/data_store
+/data_store_test

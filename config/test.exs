@@ -5,7 +5,7 @@ use Mix.Config
 config :elixir_list, ElixirListWeb.Endpoint,
   http: [port: 4001],
   server: false,
-  dets: :store_test
+  dets: :data_store_test
 
 # Print only warnings and errors during test
 config :logger, level: :warn
