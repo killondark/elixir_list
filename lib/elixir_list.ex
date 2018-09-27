@@ -2,8 +2,6 @@ defmodule ElixirList do
   require Logger
 
   @url_for_elixir_list "https://raw.githubusercontent.com/h4cc/awesome-elixir/master/README.md"
-  @ttl 1
-  @parse_error "Something went wrong. Can not parse the table of contents"
 
   def update_lib_data do
     parse_awesome_elixir() |> raw_contents() |> parse_contents()
@@ -16,7 +14,6 @@ defmodule ElixirList do
   def raw_contents(string) do
     string = Regex.replace(~r/([\s\S]*?)\n##/, string, "\n##", global: false)
     Regex.replace(~r/\n(# Resources[\s\S]*)/, string, "\n##")
-    # result <> "##"
   end
 
   def parse_lib(string) do
@@ -24,18 +21,14 @@ defmodule ElixirList do
   end
 
   def set_repo_info(repo) do
-    # curl https://api.github.com/repos/[username]/[reponame]
-    # last_commit: "updated_at"
-    # stars: "stargazers_count"
-    # HTTPoison.get!("https://api.github.com/repos/takscape/elixir-array", [], [params: [access_token: "auth-token"]])
-    options = [params: [access_token: "generate-token"]]
+    options = [params: [access_token: github_token()]]
     if options[:params][:access_token] == "generate-token" do
       Logger.info("You need generate token")
     end
     response = HTTPoison.get!("https://api.github.com/repos/" <> repo, [], options)
     req = Poison.decode!(response.body)
     case response.status_code do
-      404 -> [nil, nil]
+      404 -> [0, 0]
       301 ->
         response = HTTPoison.get!(req["url"])
         req = Poison.decode!(response.body)
@@ -51,7 +44,6 @@ defmodule ElixirList do
   end
 
   def parse_commit_date(string) do
-    Logger.info(string)
     data = Regex.scan(~r/\d+/, string) |> List.flatten()
     [year, month, day, hours, minutes, seconds] = Enum.map(data, fn x -> String.to_integer(x) end)
     {{year, month, day}, {hours, minutes, seconds}}
@@ -79,12 +71,12 @@ defmodule ElixirList do
     end
   end
 
-  def all_records do
-    :dets.match_object(store_name(), {:"$1", :"$2", :"$3", :"$4"})
-  end
-
   def store_name do
     Application.get_env(:elixir_list, ElixirListWeb.Endpoint)[:dets]
+  end
+
+  def github_token do
+    Application.get_env(:elixir_list, ElixirListWeb.Endpoint)[:secret_github_token]
   end
 
   def open_table do
@@ -93,11 +85,33 @@ defmodule ElixirList do
 
   def create(data) do
     :dets.insert(store_name(), data)
+    :dets.sync(store_name())
   end
 
-  def select_titles do
-    :dets.match(store_name(), {:"$1", :_, :_, :_})
-    |> List.flatten()
+  def select_titles(data) do
+    Enum.map(data, fn x -> hd x end) |> Enum.sort()
+  end
+
+  def select_all do
+    :dets.match(store_name(), {:"$1", :"$2", :_, :"$4"})
+    |> Enum.sort()
+  end
+
+  def select_gt_stars(star) do
+    # [["a", "b", "c", [["d", "e", 10, 0], ["d", "e", 100, 0]]], ["a", "b", "c", [["d", "e", 5, 0]]]]
+    data = Enum.map(select_all(), fn x ->
+      [name, desc, old_libs] = x
+      libs = Enum.map(old_libs, fn lib ->
+        if Enum.at(lib, 2) >= star do
+          lib
+        end
+      end)
+      libs = Enum.filter(libs, & !is_nil(&1))
+      if libs != [] do
+        [name, desc, libs]      
+      end
+    end)
+    Enum.reject(data, &is_nil/1)
     |> Enum.sort()
   end
 end
