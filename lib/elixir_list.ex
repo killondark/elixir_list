@@ -49,9 +49,14 @@ defmodule ElixirList do
     {{year, month, day}, {hours, minutes, seconds}}
   end
 
-  def time_difference(time) do
-    :calendar.time_difference(time, :calendar.universal_time)
-  end 
+  def time_difference(datetime) do
+    :calendar.time_difference(datetime, :calendar.universal_time)
+  end
+
+  def time_to_seconds(time) do
+    # time format {hours, minutes, seconds}
+    :calendar.time_to_seconds(time)
+  end
 
   def parse_contents(string) do
     regex = ~r/(\n## [\s\S]*?)\n##/
@@ -113,5 +118,11 @@ defmodule ElixirList do
     end)
     Enum.reject(data, &is_nil/1)
     |> Enum.sort()
+  end
+
+  def get_datetime do
+    key = :dets.first store_name()
+    # return [[datetime]]
+    :dets.match(store_name(), {key, :_, :"$1", :_})
   end
 end

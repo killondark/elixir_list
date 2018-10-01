@@ -15,6 +15,7 @@ defmodule ElixirList.Application do
     ]
 
     ElixirList.open_table()
+    Periodically.start_link()
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ElixirList.Supervisor]
